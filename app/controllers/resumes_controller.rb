@@ -1,6 +1,17 @@
 class ResumesController < ApplicationController
   before_action :set_resume, only: [:show, :edit, :update, :destroy]
 
+  before_filter :you_are_lucky
+
+  def you_are_lucky
+    render :text => "Access denied, because you are lucky", :status => 403 if params[:id] && params[:id].to_i > 500
+  end
+
+  def viewed
+    resume = Resume.find(params[:id])
+    @views = resume.view_histories
+  end
+
   # GET /resumes
   # GET /resumes.json
   def index
@@ -10,6 +21,8 @@ class ResumesController < ApplicationController
   # GET /resumes/1
   # GET /resumes/1.json
   def show
+    view_hitory = ViewHistory.new(:time_viewed => Time.now, :ip => request.remote_ip, :resume_id => @resume.id)
+    view_hitory.save
   end
 
   # GET /resumes/new
